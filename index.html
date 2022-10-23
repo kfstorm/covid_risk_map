@@ -21,45 +21,70 @@
 <script src="https://webapi.amap.com/maps?v=1.4.15&key=309f07ac6bc48160e80b480ae511e1e9&plugin=Map3D,AMap.DistrictLayer,AMap.Scale,AMap.ToolBar"></script>
 <script src="https://a.amap.com/Loca/static/mock/adcodes.js"></script>
 <script>
-    // 颜色辅助方法
-    var colors = {};
-    var getColorByAdcode = function (adcode) {
-        if (!colors[adcode]) {
-            var gb = Math.random() * 255;
-            colors[adcode] = 'rgb(255,' + gb + ',' + gb + ')';
+    function initMap(riskData) {
+        counts = {};
+        for (var item of riskData.highlist) {
+            console.log(item);
+            key = item.city;
+            if (!counts[key]) {
+                counts[key] = 0
+            }
+            counts[key] += 1
         }
+        console.log(counts);
 
-        return colors[adcode];
-    };
+        // 颜色辅助方法
+        var getColor = function (properties) {
+            name = properties.NAME_CHN;
+            gb = 255;
+            if (counts[name]) {
+                if (counts[name] > 0) {
+                    gb = 192;
+                }
+                if (counts[name] >= 10) {
+                    gb = 128;
+                }
+                if (counts[name] >= 50) {
+                    gb = 64;
+                }
+                if (counts[name] >= 100) {
+                    gb = 0;
+                }
+            }
+            return 'rgb(255,' + gb + ',' + gb + ')';
+        };
 
-    var map = new AMap.Map("container", {
-        zoom: 4.5,
-        center: [116.412427, 39.303573],
-        pitch: 0,
-        viewMode: '3D',
-    });
-    // 创建省份图层
-    var disProvince;
-    disProvince = new AMap.DistrictLayer.Province({
-        zIndex: 12,
-        adcode: adcodes.map(item => item.adcode),
-        depth: 1,
-        styles: {
-            'fill': function (properties) {
-                // properties为可用于做样式映射的字段，包含
-                // NAME_CHN:中文名称
-                // adcode_pro
-                // adcode_cit
-                // adcode
-                var adcode = properties.adcode;
-                return getColorByAdcode(adcode);
-            },
-            'province-stroke': 'gray',
-            'city-stroke': 'silver', // 中国地级市边界
-        }
-    });
-    disProvince.setMap(map);
+        var map = new AMap.Map("container", {
+            zoom: 4.5,
+            center: [116.412427, 39.303573],
+            pitch: 0,
+            viewMode: '3D',
+        });
+        // 创建省份图层
+        var disProvince;
+        disProvince = new AMap.DistrictLayer.Province({
+            zIndex: 12,
+            adcode: adcodes.map(item => item.adcode),
+            depth: 1,
+            styles: {
+                'fill': function (properties) {
+                    // properties为可用于做样式映射的字段，包含
+                    // NAME_CHN:中文名称
+                    // adcode_pro
+                    // adcode_cit
+                    // adcode
+                    return getColor(properties);
+                },
+                'province-stroke': 'gray',
+                'city-stroke': 'silver', // 中国地级市边界
+            }
+        });
+        disProvince.setMap(map);
+    }
 
+    fetch('https://raw.githubusercontent.com/kfstorm/covid_risk_level_data/main/data.json')
+        .then((response) => response.json())
+        .then((data) => initMap(data));
 </script>
 </body>
 </html>
