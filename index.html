@@ -25,7 +25,12 @@
         function parse(riskList) {
             var counts = {};
             for (var item of riskList) {
-                key = item.city;
+                var key = item.city;
+                // workaround
+                if (item.province == '北京市') {
+                    key = item.province;
+                }
+
                 if (!counts[key]) {
                     counts[key] = [0, [item.province, item.city]]
                 }
