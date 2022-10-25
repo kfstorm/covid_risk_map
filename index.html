@@ -13,11 +13,19 @@
             height: 100%;
             margin: 0;
         }
+        #title {
+            position: absolute;
+            z-index: 1;
+        }
     </style>
-    <title>简易行政区图 - 省份&层级</title>
+    <title>新冠疫情风险等级地图（地级市级别）</title>
 </head>
 <body>
-<div id="container"></div>
+    <div id="title">
+        <h1>新冠疫情风险等级地图（地级市级别）</h1>
+        <h2 id="timestamp"></h2>
+    </div>
+    <div id="container"></div>
 <script src="https://webapi.amap.com/maps?v=1.4.15&key=309f07ac6bc48160e80b480ae511e1e9&plugin=Map3D,AMap.DistrictLayer,AMap.Scale,AMap.ToolBar"></script>
 <script src="https://a.amap.com/Loca/static/mock/adcodes.js"></script>
 <script>
@@ -90,6 +98,8 @@
             }
         });
         disProvince.setMap(map);
+
+        document.getElementById('timestamp').innerText = '更新时间：' + riskData.end_update_time;
 
         map.on('complete', function() {
             var unknown = new Set();
