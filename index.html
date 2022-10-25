@@ -22,35 +22,43 @@
 <script src="https://a.amap.com/Loca/static/mock/adcodes.js"></script>
 <script>
     function initMap(riskData) {
-        counts = {};
-        for (var item of riskData.highlist) {
-            console.log(item);
-            key = item.city;
-            if (!counts[key]) {
-                counts[key] = 0
+        function parse(riskList) {
+            counts = {};
+            for (var item of riskList) {
+                key = item.city;
+                if (!counts[key]) {
+                    counts[key] = [0, [item.province, item.city]]
+                }
+                counts[key][0] += 1;
             }
-            counts[key] += 1
+            return counts;
         }
-        console.log(counts);
-
+        high = parse(riskData.highlist);
+        middle = parse(riskData.middlelist);
+        function getCounts(name) {
+            val = [0, 0];
+            if (high[name]) {
+                val[0] = high[name][0];
+            }
+            if (middle[name]) {
+                val[1] = middle[name][0];
+            }
+            return val;
+        }
         // 颜色辅助方法
         var getColor = function (properties) {
             name = properties.NAME_CHN;
-            gb = 255;
-            if (counts[name]) {
-                if (counts[name] > 0) {
-                    gb = 192;
-                }
-                if (counts[name] >= 10) {
-                    gb = 128;
-                }
-                if (counts[name] >= 50) {
-                    gb = 64;
-                }
-                if (counts[name] >= 100) {
-                    gb = 0;
-                }
+            [highCount, middleCount] = getCounts(name);
+            delete high[name];
+            delete middle[name];
+            // TODO: use log scale
+            score = highCount * 3 + middleCount;
+            score = Math.min(1, score / 20);
+            console.log([highCount, middleCount, name, score]);
+            if (score > 0) {
+                score = 0.3 + score * 0.7;
             }
+            gb = (1 - score) * 255;
             return 'rgb(255,' + gb + ',' + gb + ')';
         };
 
@@ -80,6 +88,10 @@
             }
         });
         disProvince.setMap(map);
+
+        map.on('complete', function() {
+            alert('以下区域未能识别：' + JSON.stringify([high, middle]));
+        });
     }
 
     fetch('https://raw.githubusercontent.com/kfstorm/covid_risk_level_data/main/data.json')
