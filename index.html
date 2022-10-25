@@ -23,7 +23,7 @@
 <script>
     function initMap(riskData) {
         function parse(riskList) {
-            counts = {};
+            var counts = {};
             for (var item of riskList) {
                 key = item.city;
                 if (!counts[key]) {
@@ -33,8 +33,8 @@
             }
             return counts;
         }
-        high = parse(riskData.highlist);
-        middle = parse(riskData.middlelist);
+        var high = parse(riskData.highlist);
+        var middle = parse(riskData.middlelist);
         function getCounts(name) {
             val = [0, 0];
             if (high[name]) {
@@ -54,12 +54,11 @@
             // TODO: use log scale
             score = highCount * 3 + middleCount;
             score = Math.min(1, score / 20);
-            console.log([highCount, middleCount, name, score]);
             if (score > 0) {
                 score = 0.3 + score * 0.7;
             }
             gb = (1 - score) * 255;
-            return 'rgb(255,' + gb + ',' + gb + ')';
+            return 'rgba(255,' + gb + ',' + gb + ',0.3)';
         };
 
         var map = new AMap.Map("container", {
@@ -83,14 +82,19 @@
                     // adcode
                     return getColor(properties);
                 },
-                'province-stroke': 'gray',
-                'city-stroke': 'silver', // 中国地级市边界
             }
         });
         disProvince.setMap(map);
 
         map.on('complete', function() {
-            alert('以下区域未能识别：' + JSON.stringify([high, middle]));
+            var unknown = new Set();
+            var lists = [high, middle];
+            for (var counts of lists) {
+                for (var [key, value] of Object.entries(counts)) {
+                    unknown.add(value[1][0] + ' ' + value[1][1]);
+                }
+            }
+            alert('以下区域未能识别：\n' + Array.from(unknown).join('\n'));
         });
     }
 
