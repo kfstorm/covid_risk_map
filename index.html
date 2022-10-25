@@ -66,25 +66,25 @@
         }
         // 颜色辅助方法
         var getColor = function (properties) {
-            name = properties.NAME_CHN;
+            var name = properties.NAME_CHN;
             [highCount, middleCount] = getCounts(name);
             delete high[name];
             delete middle[name];
             // TODO: use log scale
-            score = highCount * 3 + middleCount;
+            var score = highCount * 3 + middleCount;
             score = Math.min(1, score / 20);
             if (score > 0) {
                 score = 0.3 + score * 0.7;
+                var gb = (1 - score) * 255;
+                return 'rgba(255,' + gb + ',' + gb + ',0.3)';
+            } else {
+                return 'transparent';
             }
-            gb = (1 - score) * 255;
-            return 'rgba(255,' + gb + ',' + gb + ',0.3)';
         };
 
         var map = new AMap.Map("container", {
-            zoom: 4.5,
-            center: [116.412427, 39.303573],
-            pitch: 0,
-            viewMode: '3D',
+            zoom: 4,
+            center: [108.94,34.34], // 西安
         });
         // 创建省份图层
         var disProvince;
