@@ -19,17 +19,22 @@
             z-index: 1;
             text-align: center;
             width: 100%;
-            margin: 20px;
+            padding: 20px;
         }
     </style>
     <title>新冠疫情风险等级地图（地级市级别）</title>
 </head>
 <body>
     <div id="title">
-        <h1>新冠疫情风险等级地图（地级市级别）</h1>
-        <h2>
-            <span id="timestamp"></span>
-            <span id="warning" style="visibility: hidden" data-bs-toggle="tooltip">⚠️</span></h2>
+        <h1>新冠疫情风险等级地图</h1>
+        <h2>（地级市级别）</h2>
+        <h3 id="timestamp"></h3>
+        <p>
+            <a href="#" id="warning" style="visibility: hidden"
+                data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom">
+                ⚠️部分区域未能识别并绘制在地图上
+            </a>
+        </p>
     </div>
     <div id="container"></div>
 <script src="https://webapi.amap.com/maps?v=1.4.15&key=309f07ac6bc48160e80b480ae511e1e9&plugin=Map3D,AMap.DistrictLayer,AMap.Scale,AMap.ToolBar"></script>
@@ -117,12 +122,13 @@
             }
             var warning = document.getElementById('warning');
             if (unknown.size > 0) {
-                var warning_text = '以下区域未能识别：\n' + Array.from(unknown).join('\n');
+                var warning_text = Array.from(unknown).join('<br/>');
                 warning.style.visibility = "visible";
-                warning.setAttribute("title", warning_text);
+                warning.setAttribute("data-bs-title", warning_text);
+                new bootstrap.Tooltip(warning);
             } else {
                 warning.style.visibility = "hidden";
-                warning.setAttribute("title", '');
+                warning.setAttribute("data-bs-title", '');
             }
         });
     }
