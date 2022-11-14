@@ -195,6 +195,33 @@
         });
         disProvince.setMap(map);
 
+        map.on('complete', function () {
+            layer = new AMap.LabelsLayer({
+              fitView: true,
+            });
+            map.add(layer);
+            map.on('click', function (e) {
+                const px = e.pixel;
+                const properties = disProvince.getDistrictByContainerPos(px);
+                if (!properties) {
+                    return;
+                }
+                const name = properties.NAME_CHN;
+                const key = getKey(properties);
+                let count = getCountOfValue(data[key]);
+                if (count === null) {
+                    count = "无数据";
+                }
+                const text = `${name}: ${count}`;
+                const labelMarker = new AMap.LabelMarker({
+                    position: [properties.x, properties.y],
+                    text: { content: text, style: { backgroundColor: '#FFFFFF' } },
+                    rank: 2,
+                });
+                layer.add(labelMarker);
+            });
+        });
+
         document.getElementById('timestamp').innerText = '数据时间：' + timestamp;
     }
 
