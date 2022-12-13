@@ -128,7 +128,7 @@
             await Promise.all(promises);
             const date = new Date(
                 parseInt(timestamp.slice(0, 4)),
-                parseInt(timestamp.slice(4, 6)),
+                parseInt(timestamp.slice(4, 6)) - 1,
                 parseInt(timestamp.slice(6, 8))
             );
             timestamp = `截至 ${date.toLocaleDateString('zh-CN')}`;
